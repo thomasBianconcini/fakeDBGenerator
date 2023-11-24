@@ -1,3 +1,4 @@
+
 #!/bin/bash
 name='user'
 port=8000
@@ -24,4 +25,4 @@ sudo docker build --build-arg db=$db --build-arg login=$login --build-arg name=$
 
 sudo docker run --name test -p $port:8080 -v /home/thomas/Desktop/progettoCyber:/app hello-world
 
-sqlite_web people.db
+sqlite_web -P -r people.db 
