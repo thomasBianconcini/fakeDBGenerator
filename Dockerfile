@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . /app
 
 #Installing required Python packages
-RUN pip install --no-cache-dir Faker Flask Flask-HTTPAuth pandas sqlite_web pygments 
+RUN pip install --no-cache-dir Faker Flask pandas sqlite_web  
 
 ARG db=N
 ARG login=N

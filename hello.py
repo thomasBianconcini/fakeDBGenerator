@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 import sqlite3
-from flask_httpauth import HTTPBasicAuth
+
 from faker import Faker
 import pandas as pd
 import os 
@@ -8,12 +8,7 @@ import subprocess
 
 app = Flask(__name__)
 fake = Faker()
-auth = HTTPBasicAuth()
 
-users = {
-    "admin": "password",
-    # Add more users here if needed
-}
 
 def query_db(query, args=(), one=False):
     con = sqlite3.connect('people.db')
@@ -66,21 +61,10 @@ def create_database():
 if __name__ == '__main__':
     DB_esitente = os.getenv('DB')
     if DB_esitente == "N":
-        login = os.getenv('LOGIN')
-        if login == 'S':
-            name= os.getenv('NAME')
-            pw= os.getenv('PW')
-            users={
-                name : pw,
-            }
-        else:
-             users={
-                "admin": "password",
-            }
+       create_database()
     elif DB_esitente == "S":
         cc="ciao"
 
-    create_database()
     #comando = "docker cp test:/app/people.db /home/thomas/Desktop/progettoCyber/people.db"
     #output = subprocess.run(comando, shell=True)
     
