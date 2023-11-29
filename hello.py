@@ -6,29 +6,56 @@ import pandas as pd
 import os 
 import subprocess
 
+import csv
+
 app = Flask(__name__)
 fake = Faker()
 
 
-def query_db(query, args=(), one=False):
-    con = sqlite3.connect('people.db')
-    df = pd.read_sql_query(query, con)
-    con.close()
-    return df.to_html()
-
-def get_data():
+def import_database():
+    csv_file = os.getenv('FILE')
+    print(csv_file)
+    # Connessione al database SQLite
     conn = sqlite3.connect('people.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM people')
-    data = cursor.fetchall()
-    conn.close()
-    return data
 
+    # Creazione di un cursore
+    cursor = conn.cursor()
+   
+    # Leggo il file CSV per ottenere i nomi delle colonne e delle tables
+    with open(csv_file, newline='') as file:
+        csv_reader = csv.reader(file)
+        table_data={}
+        header = next(csv_reader)  # Ottengo l'intestazione
+        
+        print("header :"+ str(header))
+        # Query per ottenere i nomi delle tabelle
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cursor.fetchall()
+
+    # Ottengo il nome del file senza l'estensione per usare come nome della tabella
+    table_name = csv_file.split('.')[1]
+
+    # Costruisco la query per creare la tabella dinamicamente
+    create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join([f'{col} TEXT' for col in header])})"
+    print(create_table_query)
+    cursor.execute(create_table_query)
+
+
+    # Inserisco i dati nella tabella
+    with open(csv_file, newline='') as file:
+        csv_reader = csv.reader(file)
+        next(csv_reader)  # Salto l'intestazione
+        cursor.executemany(f"INSERT INTO {table_name} VALUES ({', '.join(['?']*len(header))})", csv_reader)
+
+    # Commit delle modifiche
+    conn.commit()
+
+    # Chiusura della connessione
+    conn.close()
 
 def create_database():
     conn = sqlite3.connect('people.db')
     c = conn.cursor()
-
     c.execute('''DROP TABLE IF EXISTS people''')
     c.execute('''DROP TABLE IF EXISTS details''')
     c.execute('''CREATE TABLE people (
@@ -60,11 +87,13 @@ def create_database():
     
 if __name__ == '__main__':
     DB_esitente = os.getenv('DB')
+    print(DB_esitente)
     if DB_esitente == "N":
+       print("creating DB")
        create_database()
-    elif DB_esitente == "S":
-        cc="ciao"
-
+    else:
+        import_database()
+        print("importing DB")
     #comando = "docker cp test:/app/people.db /home/thomas/Desktop/progettoCyber/people.db"
     #output = subprocess.run(comando, shell=True)
     

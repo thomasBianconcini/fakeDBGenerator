@@ -9,15 +9,12 @@ COPY . /app
 RUN pip install --no-cache-dir Faker Flask pandas sqlite_web  
 
 ARG db=N
-ARG login=N
-ARG name=user
-ARG pw=pw
 ARG port=8080
+ARG file=null
 ENV PORT=${port}
 ENV DB=${db}
-ENV LOGIN=${login}
-ENV NAME=${name}
-ENV PW=${pw}
+ENV FILE=${file}
+
 #Installing SQLite3 for database interaction
 #RUN my_db.py
 #Command to run your Flask app
